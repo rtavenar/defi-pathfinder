@@ -10,30 +10,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f6f4ef;
+  --bg: #f6f5ff;
   --surface: #ffffff;
-  --ink: #1b1d22;
-  --muted: #5d6270;
-  --line: #e0dcd2;
-  --accent: #d2491b;
-  --accent-soft: #fbe6dc;
-  --code-bg: #1d2027;
-  --code-ink: #e8e6e1;
-  --gold: #b88a00; --silver: #7d8590; --bronze: #a2592c;
+  --ink: #14141f;
+  --muted: #5e5b78;
+  --line: #e4e1f7;
+  --accent: #5b3df5;
+  --accent-soft: #ece8ff;
+  --accent-2: #ff4d8d;
+  --on-accent: #ffffff;
+  --code-bg: #14141f;
+  --code-ink: #e6e4f5;
+  --gold: #e8336f; --silver: #5e5b78; --bronze: #5b3df5;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #121418; --surface: #1a1d23; --ink: #ecebe7; --muted: #9aa0ad;
-    --line: #2b2f37; --accent: #ff7a45; --accent-soft: #3a2219;
-    --code-bg: #0c0e11; --code-ink: #e8e6e1;
-    --gold: #e7b923; --silver: #aab2bd; --bronze: #d38552;
+    --bg: #0f0e1a; --surface: #18172a; --ink: #eeedf8; --muted: #a19dc0;
+    --line: #2b2945; --accent: #8b75ff; --accent-soft: #241f45; --accent-2: #ff6fa3;
+    --on-accent: #0f0e1a; --code-bg: #0a0913; --code-ink: #e6e4f5;
+    --gold: #ff6fa3; --silver: #a19dc0; --bronze: #8b75ff;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #121418; --surface: #1a1d23; --ink: #ecebe7; --muted: #9aa0ad;
-  --line: #2b2f37; --accent: #ff7a45; --accent-soft: #3a2219;
-  --code-bg: #0c0e11; --code-ink: #e8e6e1;
-  --gold: #e7b923; --silver: #aab2bd; --bronze: #d38552;
+  --bg: #0f0e1a; --surface: #18172a; --ink: #eeedf8; --muted: #a19dc0;
+  --line: #2b2945; --accent: #8b75ff; --accent-soft: #241f45; --accent-2: #ff6fa3;
+  --on-accent: #0f0e1a; --code-bg: #0a0913; --code-ink: #e6e4f5;
+  --gold: #ff6fa3; --silver: #a19dc0; --bronze: #8b75ff;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -55,12 +57,12 @@ h1 { font-family: "Fraunces", serif; font-weight: 700; font-size: clamp(40px, 7v
 .hero-path path { fill: none; stroke-linecap: round; }
 .hero-path .d { stroke: var(--line); stroke-width: 3; stroke-dasharray: 16 9; }
 .hero-path .t { stroke: var(--accent); stroke-width: 4; stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 3.2s ease-out .3s forwards; }
-.hero-path circle { fill: var(--accent); }
+.hero-path circle { fill: var(--accent-2); }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .hero-path .t { animation: none; stroke-dashoffset: 0; } }
 .cta { display: flex; flex-wrap: wrap; gap: 12px; }
 .btn { display: inline-block; padding: 11px 18px; border-radius: 8px; font-weight: 600; text-decoration: none; border: 1px solid var(--ink); color: var(--ink); background: transparent; }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 40px; border-top: 1px solid var(--line); }
 .facts div { padding: 14px 12px 0 0; }
 .facts b { display: block; font: 600 22px/1.2 "Fraunces", serif; }
