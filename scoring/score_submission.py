@@ -56,6 +56,11 @@ def read_json(path, default):
     return json.loads(path.read_text()) if path.exists() else default
 
 
+def is_baseline(team):
+    """Les noms d'équipe commençant par « Baseline » sont réservés à l'enseignant."""
+    return team.strip().lower().startswith("baseline")
+
+
 def build_leaderboard(subs):
     best = {}
     for s in subs:
@@ -72,7 +77,7 @@ def build_leaderboard(subs):
             {"team": r["team"], "score": r["public_score"], "date": r["date"],
              "issue": r["issue"], "description": r.get("description", ""),
              "n_submissions": counts[r["team"]],
-             "baseline": r["team"] in CONFIG.get("baseline_teams", [])}
+             "baseline": is_baseline(r["team"])}
             for r in rows
         ],
     }
@@ -93,6 +98,9 @@ def main():
     if not team or team == "_No response_":
         fail("nom d'équipe manquant.")
     team = re.sub(r"\s+", " ", team)[:40]
+    admins = {u.lower() for u in CONFIG.get("admins", [])}
+    if is_baseline(team) and user.lower() not in admins:
+        fail("les noms d'équipe commençant par « Baseline » sont réservés.")
     desc = fields.get(CONFIG["field_description"], "")
     desc = "" if desc == "_No response_" else desc.replace("\n", " ")[:120]
 
@@ -154,10 +162,16 @@ def main():
         f"| | |\n|---|---|\n| {CONFIG['metric_name']} (test public) | **{score:.4f}** |\n"
         f"| Rang actuel de l'équipe (meilleure soumission) | {rank} / {len(lb['rows'])} |\n"
         f"| Soumissions restantes sur 24 h glissantes | {left} |\n\n"
-        f"Le classement est mis à jour sur la page du défi d'ici une minute.\n"
+        f"Le classement de la page du défi sera à jour d'ici quelques minutes (cache de GitHub).\n"
     )
     print(f"{team}: {score:.4f}")
 
 
 if __name__ == "__main__":
-    main()
+    if "--rebuild" in sys.argv:
+        # Régénère docs/leaderboard.json à partir de docs/submissions.json
+        LEADERBOARD.write_text(json.dumps(build_leaderboard(read_json(SUBMISSIONS, [])),
+                                          indent=1, ensure_ascii=False))
+        print("docs/leaderboard.json régénéré")
+    else:
+        main()

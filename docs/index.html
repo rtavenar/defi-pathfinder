@@ -239,7 +239,7 @@ save_submission(pred, <span class="s">"submission.zip"</span>, expected_shape=X_
     <li>Le code permettant de reproduire la soumission finale doit être rendu avec le rapport.</li>
   </ul>
   <div class="timeline">
-    <div><b>Ouverture</b>JJ/MM/2026</div>
+    <!-- <div><b>Ouverture</b>JJ/MM/2026</div> -->
     <div><b>Date limite de soumission</b>31/01/2027, 23 h 59</div>
     <div><b>Rendu du code et du rapport</b>JJ/MM/2027</div>
   </div>
@@ -274,6 +274,7 @@ save_submission(pred, <span class="s">"submission.zip"</span>, expected_shape=X_
 <footer><div class="wrap">
   <button class="theme-toggle" id="theme-toggle" type="button">Thème</button>
   Défi organisé par Romain Tavenard, Université Rennes 2. Données : Pathfinder-X2 (CC BY 4.0), d'après Linsley et al. (2018).
+  Page web et système de leaderboard codés à l'aide de Claude Opus 5.5
 </div></footer>
 
 <script>
@@ -322,7 +323,7 @@ save_submission(pred, <span class="s">"submission.zip"</span>, expected_shape=X_
           '<td class="score"><a href="' + issue + '" style="color:inherit;text-decoration:none">' + r.score.toFixed(4) + "</a>" +
           '<div class="bar"><i style="width:' + Math.max(0, Math.min(1, r.score)) * 100 + '%"></i></div></td>' +
           '<td class="num hide-sm">' + (r.baseline ? "" : r.n_submissions) + "</td>" +
-          '<td class="num hide-sm">' + fmtDate(r.date) + "</td></tr>";
+          '<td class="num hide-sm">' + (r.baseline ? "" : fmtDate(r.date)) + "</td></tr>";
       });
       tbody.innerHTML = html;
     }
