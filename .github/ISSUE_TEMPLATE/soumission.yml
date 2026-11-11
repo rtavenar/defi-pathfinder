@@ -1,0 +1,30 @@
+name: Soumission
+description: Soumettre des prédictions sur le jeu de test du défi Pathfinder
+title: "[Soumission] "
+labels: ["soumission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Générez le fichier avec `save_submission(pred)` (voir `pathfinder_data.py`),
+        puis **glissez-déposez `submission.zip`** dans le champ ci-dessous.
+        Le score sur le test public est posté en commentaire en 1 à 2 minutes.
+  - type: input
+    id: team
+    attributes:
+      label: Nom de l'équipe
+      description: Toujours le même pour toutes vos soumissions (40 caractères max).
+    validations:
+      required: true
+  - type: textarea
+    id: file
+    attributes:
+      label: Fichier de soumission
+      description: Glissez-déposez submission.zip ici (25 Mo max).
+    validations:
+      required: true
+  - type: input
+    id: description
+    attributes:
+      label: Description de la méthode (optionnel)
+      description: "Une ligne, affichée dans le classement. Ex. : U-Net 4 niveaux, Dice loss, 30 époques"

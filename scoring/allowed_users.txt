@@ -1,0 +1,2 @@
+# Comptes GitHub autorisés à soumettre (un par ligne).
+# Fichier vide (hors commentaires) = tout le monde peut soumettre.

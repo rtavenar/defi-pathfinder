@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Défi Pathfinder</title>
+<meta name="description" content="Défi de segmentation image-vers-image sur Pathfinder-X2 : retrouver le serpent qui part du disque.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --ink: #1b1d22;
+  --muted: #5d6270;
+  --line: #e0dcd2;
+  --accent: #d2491b;
+  --accent-soft: #fbe6dc;
+  --code-bg: #1d2027;
+  --code-ink: #e8e6e1;
+  --gold: #b88a00; --silver: #7d8590; --bronze: #a2592c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121418; --surface: #1a1d23; --ink: #ecebe7; --muted: #9aa0ad;
+    --line: #2b2f37; --accent: #ff7a45; --accent-soft: #3a2219;
+    --code-bg: #0c0e11; --code-ink: #e8e6e1;
+    --gold: #e7b923; --silver: #aab2bd; --bronze: #d38552;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121418; --surface: #1a1d23; --ink: #ecebe7; --muted: #9aa0ad;
+  --line: #2b2f37; --accent: #ff7a45; --accent-soft: #3a2219;
+  --code-bg: #0c0e11; --code-ink: #e8e6e1;
+  --gold: #e7b923; --silver: #aab2bd; --bronze: #d38552;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.65 "IBM Plex Sans", system-ui, sans-serif;
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+
+/* En-tête */
+header.hero { border-bottom: 1px solid var(--line); position: relative; overflow: hidden; }
+.hero .wrap { padding-top: 56px; padding-bottom: 48px; position: relative; z-index: 1; }
+.kicker { font: 500 13px/1 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: "Fraunces", serif; font-weight: 700; font-size: clamp(40px, 7vw, 72px); line-height: 1.02; margin: 14px 0 16px; letter-spacing: -.02em; }
+.lede { font-size: 19px; max-width: 620px; color: var(--muted); margin: 0 0 28px; }
+.lede strong { color: var(--ink); font-weight: 600; }
+.hero-path { position: absolute; right: -40px; top: 10px; width: 520px; max-width: 70%; opacity: .9; z-index: 0; pointer-events: none; }
+.hero-path path { fill: none; stroke-linecap: round; }
+.hero-path .d { stroke: var(--line); stroke-width: 3; stroke-dasharray: 16 9; }
+.hero-path .t { stroke: var(--accent); stroke-width: 4; stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 3.2s ease-out .3s forwards; }
+.hero-path circle { fill: var(--accent); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .hero-path .t { animation: none; stroke-dashoffset: 0; } }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-block; padding: 11px 18px; border-radius: 8px; font-weight: 600; text-decoration: none; border: 1px solid var(--ink); color: var(--ink); background: transparent; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 40px; border-top: 1px solid var(--line); }
+.facts div { padding: 14px 12px 0 0; }
+.facts b { display: block; font: 600 22px/1.2 "Fraunces", serif; }
+.facts span { font-size: 13px; color: var(--muted); }
+
+nav.toc { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+nav.toc .wrap { display: flex; gap: 22px; overflow-x: auto; padding-top: 12px; padding-bottom: 12px; font-size: 14px; white-space: nowrap; }
+nav.toc a { color: var(--muted); text-decoration: none; }
+nav.toc a:hover { color: var(--ink); }
+
+section { padding: 56px 0 8px; }
+h2 { font-family: "Fraunces", serif; font-weight: 700; font-size: 32px; margin: 0 0 18px; letter-spacing: -.01em; }
+h2 .n { font: 500 14px "IBM Plex Mono", monospace; color: var(--accent); margin-right: 10px; vertical-align: middle; }
+h3 { font-size: 17px; margin: 26px 0 8px; }
+p { margin: 0 0 14px; max-width: 70ch; }
+
+.samples { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 22px 0 8px; }
+.pair { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+.pair img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 5px; background: #000; image-rendering: auto; }
+.pair img + img { margin-top: 6px; }
+.pair figcaption { font: 12px "IBM Plex Mono", monospace; color: var(--muted); display: flex; justify-content: space-between; margin-top: 6px; }
+.note { font-size: 14px; color: var(--muted); }
+
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 18px 0; max-width: 72ch; }
+.callout p:last-child { margin-bottom: 0; }
+
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+td code, p code, li code { font: 14px "IBM Plex Mono", monospace; background: var(--surface); border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; }
+.table-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.table-scroll table th:first-child, .table-scroll table td:first-child { padding-left: 16px; }
+
+pre { background: var(--code-bg); color: var(--code-ink); padding: 16px 18px; border-radius: 10px; overflow-x: auto; font: 14px/1.6 "IBM Plex Mono", monospace; margin: 14px 0 18px; }
+pre .c { color: #8b93a3; }
+pre .k { color: #ff9d6e; }
+pre .s { color: #a8d8a0; }
+
+.formula { font: 17px "IBM Plex Mono", monospace; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin: 14px 0; overflow-x: auto; }
+
+ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 18px 0; max-width: 72ch; }
+ol.steps li { counter-increment: s; position: relative; padding: 0 0 18px 44px; }
+ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--bg); font: 600 14px/28px "IBM Plex Mono", monospace; text-align: center; }
+
+ul.rules { padding-left: 20px; max-width: 72ch; }
+ul.rules li { margin-bottom: 8px; }
+
+/* Classement */
+.lb-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.lb-meta { font-size: 13px; color: var(--muted); }
+#lb td.rank { font: 600 15px "IBM Plex Mono", monospace; width: 48px; }
+#lb tr.r1 td.rank { color: var(--gold); } #lb tr.r2 td.rank { color: var(--silver); } #lb tr.r3 td.rank { color: var(--bronze); }
+#lb td.score { font: 600 16px "IBM Plex Mono", monospace; white-space: nowrap; }
+#lb td.team { font-weight: 600; }
+#lb td.team small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+#lb tr.baseline td { color: var(--muted); font-style: italic; }
+#lb tr.baseline td.team { font-weight: 500; }
+#lb td.num { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 6px; min-width: 60px; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+tr.baseline .bar i { background: var(--muted); }
+.empty { padding: 28px 16px; color: var(--muted); text-align: center; }
+
+.timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 10px; }
+.timeline div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.timeline b { display: block; font: 600 13px "IBM Plex Mono", monospace; color: var(--accent); margin-bottom: 4px; }
+
+footer { border-top: 1px solid var(--line); margin-top: 64px; padding: 26px 0 40px; font-size: 14px; color: var(--muted); }
+.theme-toggle { float: right; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 4px 10px; cursor: pointer; font: inherit; }
+
+@media (max-width: 760px) {
+  .samples { grid-template-columns: repeat(2, 1fr); }
+  .facts { grid-template-columns: repeat(2, 1fr); row-gap: 14px; }
+  .timeline { grid-template-columns: 1fr; }
+  .hero-path { opacity: .25; max-width: 100%; right: -120px; }
+  #lb .hide-sm { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="hero-path" viewBox="0 0 520 360" aria-hidden="true">
+    <path class="d" d="M30 300 C 120 220, 60 120, 170 90 S 300 160, 360 60"/>
+    <path class="d" d="M80 40 C 160 120, 260 40, 300 140 S 420 300, 500 250"/>
+    <path class="d" d="M20 160 C 120 200, 200 330, 330 300 S 470 120, 510 140"/>
+    <path class="t" d="M60 330 C 150 260, 120 170, 230 190 S 330 300, 410 210 S 440 70, 480 50"/>
+    <circle cx="60" cy="330" r="9"/>
+  </svg>
+  <div class="wrap">
+    <div class="kicker">Défi IA · Master MAS · Rennes 2</div>
+    <h1>Défi Pathfinder</h1>
+    <p class="lede">Un disque, une forêt de serpents en pointillés. <strong>Retrouvez, pixel par pixel, celui qui part du disque.</strong> Une tâche de segmentation où l'information locale ne suffit pas.</p>
+    <div class="cta">
+      <a class="btn primary" href="#donnees">Récupérer les données</a>
+      <a class="btn" href="#classement">Voir le classement</a>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#tache">La tâche</a><a href="#donnees">Données</a><a href="#evaluation">Évaluation</a>
+  <a href="#soumettre">Soumettre</a><a href="#regles">Règles</a><a href="#classement">Classement</a><a href="#ressources">Ressources</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="tache">
+  <h2><span class="n">01</span>La tâche</h2>
+  <p>Chaque image contient de nombreux « serpents » : des courbes en pointillés qui serpentent, se frôlent et parfois se croisent. Un seul d'entre eux porte un <strong>disque</strong> à l'une de ses extrémités. L'objectif est de produire un <strong>masque binaire</strong> de même taille que l'image, qui vaut 1 sur les pixels de ce serpent (disque compris) et 0 ailleurs : c'est un problème <em>image-vers-image</em> (segmentation).</p>
+  <div class="samples" id="samples">
+    <figure class="pair" style="margin:0"><img src="assets/sample_0_image.png" alt="Exemple 1 : image d'entrée" loading="lazy"><img src="assets/sample_0_mask.png" alt="Exemple 1 : masque cible" loading="lazy"><figcaption><span>entrée</span><span>cible</span></figcaption></figure>
+    <figure class="pair" style="margin:0"><img src="assets/sample_1_image.png" alt="Exemple 2 : image d'entrée" loading="lazy"><img src="assets/sample_1_mask.png" alt="Exemple 2 : masque cible" loading="lazy"><figcaption><span>entrée</span><span>cible</span></figcaption></figure>
+    <figure class="pair" style="margin:0"><img src="assets/sample_2_image.png" alt="Exemple 3 : image d'entrée" loading="lazy"><img src="assets/sample_2_mask.png" alt="Exemple 3 : masque cible" loading="lazy"><figcaption><span>entrée</span><span>cible</span></figcaption></figure>
+    <figure class="pair" style="margin:0"><img src="assets/sample_3_image.png" alt="Exemple 4 : image d'entrée" loading="lazy"><img src="assets/sample_3_mask.png" alt="Exemple 4 : masque cible" loading="lazy"><figcaption><span>entrée</span><span>cible</span></figcaption></figure>
+  </div>
+  <p class="note">En haut, l'image d'entrée ; en bas, le masque à prédire.</p>
+
+  <h3>Pourquoi c'est difficile</h3>
+  <p>Localement, un tiret du bon serpent ressemble exactement à un tiret d'un serpent distracteur. Pour savoir si un pixel appartient à la cible, il faut « remonter » la courbe, de tiret en tiret, jusqu'au disque, parfois à plusieurs centaines de pixels de distance. Les pointillés empêchent de simplement suivre des pixels connexes, et là où deux serpents se touchent ou se croisent, seule la continuité de la direction permet de trancher. Un réseau convolutif peu profond, dont le champ réceptif est petit, ne peut pas trancher : la tâche teste la capacité d'un modèle à propager de l'information <strong>à longue distance</strong> dans l'image.</p>
+</section>
+
+<section id="donnees">
+  <h2><span class="n">02</span>Données</h2>
+  <p>Les données sont un sous-échantillon de <a href="https://huggingface.co/datasets/Tylersuard/PathfinderX2">Pathfinder-X2</a> (licence CC BY 4.0), lui-même construit sur le générateur Pathfinder de <a href="https://proceedings.neurips.cc/paper/2018/hash/ec8956637a99787bd197eacd77acce5e-Abstract.html">Linsley et al. (NeurIPS 2018)</a>. Le plus simple est d'utiliser <a href="https://github.com/rtavenar/defi-pathfinder/blob/main/pathfinder_data.py"><code>pathfinder_data.py</code></a>, qui ne dépend que de NumPy :</p>
+<pre><span class="c"># wget https://raw.githubusercontent.com/rtavenar/defi-pathfinder/main/pathfinder_data.py</span>
+<span class="k">from</span> pathfinder_data <span class="k">import</span> load_train, load_test, save_submission, dice_score
+
+X, Y = load_train()    <span class="c"># télécharge au premier appel, dans ./data</span>
+X_test = load_test()
+X.shape, Y.shape, X_test.shape
+<span class="c"># ((5000, 512, 512), (5000, 512, 512), (2000, 512, 512))</span></pre>
+
+  <div class="table-scroll"><table>
+    <thead><tr><th>Fichier</th><th>Contenu</th><th>Lien direct</th></tr></thead>
+    <tbody>
+      <tr><td><code>train_images.npz</code></td><td>clé <code>images</code> : <code>uint8</code>, (5000, 512, 512)</td><td><a href="https://github.com/rtavenar/defi-pathfinder/releases/download/data-v1/train_images.npz">télécharger</a></td></tr>
+      <tr><td><code>train_masks.npz</code></td><td>clé <code>masks</code> : masques compressés bit à bit (<code>np.packbits</code>), à relire avec <code>load_train()</code></td><td><a href="https://github.com/rtavenar/defi-pathfinder/releases/download/data-v1/train_masks.npz">télécharger</a></td></tr>
+      <tr><td><code>test_images.npz</code></td><td>clé <code>images</code> : <code>uint8</code>, (2000, 512, 512) ; masques non fournis</td><td><a href="https://github.com/rtavenar/defi-pathfinder/releases/download/data-v1/test_images.npz">télécharger</a></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note" style="margin-top:12px">En mémoire, le train occupe environ 2,6 Go en <code>uint8</code>. Convertissez en <code>float32</code> batch par batch, pas tout d'un coup (×4). Aucun masque de validation n'est fourni : découpez vous-même une partie du train.</p>
+</section>
+
+<section id="evaluation">
+  <h2><span class="n">03</span>Évaluation</h2>
+  <p>Pour chaque image de test <i>i</i>, on compare le masque prédit <i>P<sub>i</sub></i> au masque réel <i>G<sub>i</sub></i> par le coefficient de Dice, puis on fait la moyenne sur les images :</p>
+  <div class="formula">Dice(P, G) = 2 |P ∩ G| / (|P| + |G|)  &nbsp;&nbsp;·&nbsp;&nbsp; score = moyenne des Dice par image</div>
+  <p>Le score vaut 1 pour une prédiction parfaite. Une image où prédiction et cible sont toutes deux vides compte pour 1. La fonction <code>dice_score(pred, target)</code> du loader calcule exactement la métrique officielle.</p>
+  <div class="callout">
+    <p><strong>Test public, test privé.</strong> Le jeu de test est coupé en deux moitiés tirées au hasard. Le classement en ligne n'utilise que la moitié <em>publique</em>. Le classement final est calculé sur la moitié <em>privée</em>, avec la meilleure soumission (au sens du test public) de chaque équipe. Sur-optimiser le classement public ne paie donc pas.</p>
+  </div>
+</section>
+
+<section id="soumettre">
+  <h2><span class="n">04</span>Soumettre</h2>
+  <ol class="steps">
+    <li>Prédisez un masque (binaire, ou une probabilité seuillée à 0,5) pour les 2 000 images de test, <strong>dans l'ordre</strong> de <code>load_test()</code>.</li>
+    <li>Écrivez le fichier avec <code>save_submission(pred)</code> : il produit <code>submission.zip</code> (quelques Mo).</li>
+    <li>Ouvrez une issue <a href="https://github.com/rtavenar/defi-pathfinder/issues/new?template=soumission.yml">« Soumission »</a> sur le dépôt du défi (compte GitHub requis), indiquez le nom de votre équipe et glissez-déposez <code>submission.zip</code>.</li>
+    <li>Un robot évalue la soumission, répond dans l'issue avec votre score sur le test public, puis met à jour le classement ci-dessous.</li>
+  </ol>
+<pre>pred = model_predict(X_test)        <span class="c"># (2000, 512, 512), valeurs dans [0, 1]</span>
+save_submission(pred, <span class="s">"submission.zip"</span>, expected_shape=X_test.shape)</pre>
+  <p><a class="btn primary" href="https://github.com/rtavenar/defi-pathfinder/issues/new?template=soumission.yml">Faire une soumission</a></p>
+</section>
+
+<section id="regles">
+  <h2><span class="n">05</span>Règles</h2>
+  <ul class="rules">
+    <li>Équipes de 1 à 3 personnes. Toujours le même nom d'équipe, quel que soit le membre qui soumet.</li>
+    <li><strong>5 soumissions maximum par équipe sur 24 heures glissantes.</strong></li>
+    <li>Seules les données fournies ici sont autorisées pour l'entraînement. Utiliser le jeu Pathfinder-X2 complet, ou toute autre source contenant les images de test, entraîne la disqualification.</li>
+    <li>Les modèles pré-entraînés sur d'autres données (ImageNet, etc.) sont autorisés ; précisez-le dans la description de la soumission.</li>
+    <li>Pas d'annotation manuelle du jeu de test.</li>
+    <li>Le code permettant de reproduire la soumission finale doit être rendu avec le rapport.</li>
+  </ul>
+  <div class="timeline">
+    <div><b>Ouverture</b>JJ/MM/2026</div>
+    <div><b>Date limite de soumission</b>31/01/2027, 23 h 59</div>
+    <div><b>Rendu du code et du rapport</b>JJ/MM/2027</div>
+  </div>
+</section>
+
+<section id="classement">
+  <div class="lb-head">
+    <h2><span class="n">06</span>Classement public</h2>
+    <span class="lb-meta" id="lb-meta">Chargement…</span>
+  </div>
+  <p class="note">Meilleure soumission de chaque équipe, Dice moyen sur la moitié publique du test. Les lignes en italique sont des baselines fournies par l'équipe enseignante.</p>
+  <div class="table-scroll">
+    <table id="lb">
+      <thead><tr><th>#</th><th>Équipe</th><th>Score</th><th class="hide-sm">Soum.</th><th class="hide-sm">Dernière</th></tr></thead>
+      <tbody><tr><td colspan="5" class="empty">Chargement du classement…</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="ressources">
+  <h2><span class="n">07</span>Ressources</h2>
+  <ul class="rules">
+    <li><a href="https://github.com/rtavenar/defi-pathfinder/blob/main/starter.py">Notebook de démarrage</a> (format jupytext) : chargement, visualisation, baseline par seuillage, petit U-Net en PyTorch, soumission.</li>
+    <li>D. Linsley, J. Kim, V. Veerabadran, C. Windolf, T. Serre. <a href="https://proceedings.neurips.cc/paper/2018/hash/ec8956637a99787bd197eacd77acce5e-Abstract.html"><em>Learning long-range spatial dependencies with horizontal gated recurrent units</em></a>, NeurIPS 2018. L'article qui introduit Pathfinder.</li>
+    <li>Y. Tay et al. <a href="https://arxiv.org/abs/2011.04006"><em>Long Range Arena: A Benchmark for Efficient Transformers</em></a>, ICLR 2021. Pathfinder y est utilisé en version séquence (pixels aplatis).</li>
+    <li>O. Ronneberger, P. Fischer, T. Brox. <a href="https://arxiv.org/abs/1505.04597"><em>U-Net: Convolutional Networks for Biomedical Image Segmentation</em></a>, MICCAI 2015.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+  <button class="theme-toggle" id="theme-toggle" type="button">Thème</button>
+  Défi organisé par Romain Tavenard, Université Rennes 2. Données : Pathfinder-X2 (CC BY 4.0), d'après Linsley et al. (2018).
+</div></footer>
+
+<script>
+(function () {
+  // Thème clair / sombre (préférence locale facultative)
+  var root = document.documentElement;
+  try { var t = localStorage.getItem("theme"); if (t) root.setAttribute("data-theme", t); } catch (e) {}
+  document.getElementById("theme-toggle").addEventListener("click", function () {
+    var dark = root.getAttribute("data-theme") === "dark" ||
+      (!root.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = dark ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("theme", next); } catch (e) {}
+  });
+
+  // Exemples absents (avant la préparation des données) : on masque la grille
+  var imgs = document.querySelectorAll("#samples img"), failed = 0;
+  imgs.forEach(function (im) { im.addEventListener("error", function () {
+    if (++failed === imgs.length) document.getElementById("samples").style.display = "none";
+  }); });
+
+  // Classement : on lit d'abord la version brute du dépôt (à jour sans attendre
+  // la reconstruction de GitHub Pages), puis la copie locale en secours.
+  var REPO = "rtavenar/defi-pathfinder";
+  var sources = ["https://raw.githubusercontent.com/" + REPO + "/main/docs/leaderboard.json?t=" + Date.now(), "leaderboard.json"];
+  var tbody = document.querySelector("#lb tbody"), meta = document.getElementById("lb-meta");
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" }) + " " +
+           d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }
+  function render(lb) {
+    var rows = lb.rows || [];
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Aucune soumission pour l\'instant. À vous de jouer !</td></tr>'; }
+    else {
+      var rank = 0, html = "";
+      rows.forEach(function (r) {
+        var label = "";
+        if (!r.baseline) { rank++; label = rank; }
+        var cls = r.baseline ? "baseline" : (rank <= 3 ? "r" + rank : "");
+        var issue = "https://github.com/" + REPO + "/issues/" + r.issue;
+        html += '<tr class="' + cls + '"><td class="rank">' + (r.baseline ? "–" : label) + "</td>" +
+          '<td class="team">' + esc(r.team) + (r.description ? "<small>" + esc(r.description) + "</small>" : "") + "</td>" +
+          '<td class="score"><a href="' + issue + '" style="color:inherit;text-decoration:none">' + r.score.toFixed(4) + "</a>" +
+          '<div class="bar"><i style="width:' + Math.max(0, Math.min(1, r.score)) * 100 + '%"></i></div></td>' +
+          '<td class="num hide-sm">' + (r.baseline ? "" : r.n_submissions) + "</td>" +
+          '<td class="num hide-sm">' + fmtDate(r.date) + "</td></tr>";
+      });
+      tbody.innerHTML = html;
+    }
+    meta.textContent = lb.updated ? "Mis à jour le " + fmtDate(lb.updated) : "";
+  }
+  function load(i) {
+    if (i >= sources.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Classement indisponible pour le moment.</td></tr>'; meta.textContent = ""; return; }
+    fetch(sources[i], { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(render).catch(function () { load(i + 1); });
+  }
+  load(0);
+})();
+</script>
+</body>
+</html>

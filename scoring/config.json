@@ -1,0 +1,9 @@
+{
+  "metric_name": "Dice moyen",
+  "max_per_day": 5,
+  "baseline_teams": ["Baseline (seuillage)", "Baseline (U-Net)"],
+  "deadline": "2027-01-31T23:59:59+01:00",
+  "field_team": "Nom de l'équipe",
+  "field_file": "Fichier de soumission",
+  "field_description": "Description de la méthode (optionnel)"
+}

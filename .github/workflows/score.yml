@@ -1,0 +1,63 @@
+name: Évaluer une soumission
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+# Une seule évaluation à la fois : évite les conflits d'écriture sur leaderboard.json
+concurrency:
+  group: leaderboard
+  cancel-in-progress: false
+
+jobs:
+  score:
+    if: contains(github.event.issue.labels.*.name, 'soumission')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install numpy cryptography
+
+      - name: Évaluer
+        id: score
+        # Le contenu de l'issue passe par des variables d'environnement,
+        # jamais interpolé dans la commande (évite les injections).
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GT_KEY: ${{ secrets.GT_KEY }}
+        run: python scoring/score_submission.py
+        continue-on-error: true
+
+      - name: Publier le classement
+        if: steps.score.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/submissions.json docs/leaderboard.json
+          git commit -m "Leaderboard : soumission #${{ github.event.issue.number }}"
+          git pull --rebase
+          git push
+
+      - name: Répondre et fermer l'issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f comment.md ] || echo "❌ Erreur interne lors de l'évaluation, prévenez l'enseignant." > comment.md
+          gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} --body-file comment.md
+          if [ "${{ steps.score.outcome }}" = "success" ]; then
+            gh issue close ${{ github.event.issue.number }} --repo ${{ github.repository }} --reason completed
+          else
+            gh issue close ${{ github.event.issue.number }} --repo ${{ github.repository }} --reason "not planned"
+          fi
