@@ -1,1 +1,15 @@
-{"updated": null, "metric": "Dice moyen", "rows": []}
+{
+ "updated": "2026-11-11T17:55:25+00:00",
+ "metric": "Dice moyen",
+ "rows": [
+  {
+   "team": "Baseline (seuillage)",
+   "score": 0.29227,
+   "date": "2026-11-11T17:55:24+00:00",
+   "issue": 1,
+   "description": "",
+   "n_submissions": 1,
+   "baseline": true
+  }
+ ]
+}
