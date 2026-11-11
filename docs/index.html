@@ -210,7 +210,7 @@ X.shape, Y.shape, X_test.shape
 <section id="evaluation">
   <h2><span class="n">03</span>Évaluation</h2>
   <p>Pour chaque image de test <i>i</i>, on compare le masque prédit <i>P<sub>i</sub></i> au masque réel <i>G<sub>i</sub></i> par le coefficient de Dice, puis on fait la moyenne sur les images :</p>
-  <div class="formula">Dice(P, G) = 2 |P ∩ G| / (|P| + |G|)  &nbsp;&nbsp;·&nbsp;&nbsp; score = moyenne des Dice par image</div>
+  <div class="formula">Dice(P, G) = 2 |P ∩ G| / (|P| + |G|)<br />score = moyenne des Dice par image</div>
   <p>Le score vaut 1 pour une prédiction parfaite. Une image où prédiction et cible sont toutes deux vides compte pour 1. La fonction <code>dice_score(pred, target)</code> du loader calcule exactement la métrique officielle.</p>
   <div class="callout">
     <p><strong>Test public, test privé.</strong> Le jeu de test est coupé en deux moitiés tirées au hasard. Le classement en ligne n'utilise que la moitié <em>publique</em>. Le classement final est calculé sur la moitié <em>privée</em>, avec la meilleure soumission (au sens du test public) de chaque équipe. Sur-optimiser le classement public ne paie donc pas.</p>
