@@ -1,1 +1,20 @@
-[]
+[
+ {
+  "team": "Baseline (seuillage)",
+  "user": "rtavenar",
+  "issue": 1,
+  "url": "https://github.com/user-attachments/files/34699735/submission.zip",
+  "date": "2026-11-11T17:55:24+00:00",
+  "public_score": 0.29227,
+  "description": ""
+ },
+ {
+  "team": "Baseline (UNet)",
+  "user": "rtavenar",
+  "issue": 2,
+  "url": "https://github.com/user-attachments/files/34700407/submission.zip",
+  "date": "2026-11-11T18:13:54+00:00",
+  "public_score": 0.64368,
+  "description": ""
+ }
+]
