@@ -1,7 +1,16 @@
 {
- "updated": "2026-11-11T18:22:15+00:00",
+ "updated": "2026-11-20T18:13:40+00:00",
  "metric": "Dice moyen",
  "rows": [
+  {
+   "team": "Les Vieux Briscards",
+   "score": 0.9892,
+   "date": "2026-11-20T18:13:38+00:00",
+   "issue": 3,
+   "description": "",
+   "n_submissions": 1,
+   "baseline": false
+  },
   {
    "team": "Baseline (UNet)",
    "score": 0.64368,
