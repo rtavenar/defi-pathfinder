@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-20T18:13:40+00:00",
+ "updated": "2026-11-26T18:38:15+00:00",
  "metric": "Dice moyen",
  "rows": [
   {
@@ -19,6 +19,15 @@
    "description": "",
    "n_submissions": 1,
    "baseline": true
+  },
+  {
+   "team": "HoMiTho",
+   "score": 0.62969,
+   "date": "2026-11-26T18:38:13+00:00",
+   "issue": 4,
+   "description": "",
+   "n_submissions": 1,
+   "baseline": false
   },
   {
    "team": "Baseline (seuillage)",
